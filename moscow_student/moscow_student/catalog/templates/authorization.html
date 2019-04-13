@@ -1,0 +1,7 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<p>{{q.access_token}}</p>
+{%for i in spisok%}
+    <p>{{i.access_token}}:{{i.user_id}}</p>
+{% endfor %}
+{% endblock %}

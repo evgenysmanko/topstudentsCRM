@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <form action="" method="post">
+        <table>
+        {% csrf_token %}
+        {{ form }}
+        </table>
+        <input type="submit" value="Submit" />
+    </form>
+</head>
+<body>
+{%if sm%}
+{%for i in sm%}
+<p>{{i.access_token}}:{{i.user_id}}</p>
+{%endfor%}
+{%else%}
+<p>Nononnono</p>
+{%endif%}
+</body>
+</html>
