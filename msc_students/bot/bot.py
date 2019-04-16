@@ -15,7 +15,7 @@ def get_members(chat_id):  # #Возвращает список словарей
         peer_id=2000000000 + chat_id,
         fields=['id', 'first_name', 'last_name']
     )
-    return data['profiles'][0]
+    return data['profiles']
 
 
 def add_user(chat_id, user_id):  # #Добавляет пользователя user_id в беседу chat_id(id для бота)
