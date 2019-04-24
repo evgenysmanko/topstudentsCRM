@@ -287,3 +287,8 @@ for i in range(len(results['items'])):
         vk_api_1.likes.add(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])
         sleep(2)
 """
+
+a = "privet"
+del a
+a = "qwerrty"
+print(a)

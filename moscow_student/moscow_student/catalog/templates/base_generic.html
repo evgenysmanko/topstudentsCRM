@@ -3,14 +3,11 @@
     <head>
 		<meta charset="utf-8"/>
 		{% block title %}<title> Главная </title>{% endblock %}
+        {% block static %}<link rel="stylesheet" href="">{% endblock %}
     </head>
 
     <body>
     {% block content %}
     {% endblock %}
     </body>
-{%for i in qq%}
-    <p>{{i.access_token}}</p>
-    <p>{{i.user_id}}</p>
-{% endfor %}
 </html>

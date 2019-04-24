@@ -4,6 +4,7 @@ import getpass
 from html.parser import HTMLParser
 from time import *
 import vk
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .forms import AuthorizationForm
 from .models import SpisokSM
@@ -267,10 +268,62 @@ class VKAuth(object):
 
 
 def authorization(request):
+    return render(request, 'authorization.html', {})
+
+
+def autolike(request):
+    form = AuthorizationForm(request.POST)
+    data = "/catalog/success/"
+    us_id = ''
+    direction_id = [68047328,1]
+    if request.method == 'POST':
+        if form.is_valid():
+            login = form.cleaned_data['login']
+            pass1 = form.cleaned_data['password']
+            departament = form.cleaned_data['departament_name']
+            # Авторизация пользователя по логину и паролю
+            vk_1 = VKAuth(['wall,offline'], '6911940', '5.92', email=login, pswd=pass1)
+            vk_1.auth()
+           # Получение токена и id пользователя
+            token = vk_1.get_token()
+            us_id = vk_1.get_user_id()
+            str_sm = SpisokSM.objects.all()
+            for i in direction_id:
+                if us_id == str(i):
+                    data = "/catalog/authorization/"
+            # Если БД не пустая, то проверка токена на наличие его в БД, если нет записать, если есть удалить и записать
+            if str_sm:
+                for i in str_sm:
+                    if i.user_id != us_id:
+                        spisok = SpisokSM()
+                        spisok.user_id = us_id
+                        spisok.access_token = token
+                        spisok.departament = departament
+                        spisok.save()
+                    else:
+                        i.delete()
+                        spisok = SpisokSM()
+                        spisok.user_id = us_id
+                        spisok.access_token = token
+                        spisok.departament = departament
+                        spisok.save()
+            # Если БД пустая, то записать токен
+            else:
+                spisok = SpisokSM()
+                spisok.user_id = us_id
+                spisok.access_token = token
+                spisok.save()
+    return render(request, 'autolike.html', {'form': form,'url_host' : request.get_host() + data})
+
+
+def success(request):
+    return render(request, 'success.html')
+
+
+def work(request):
     qwerty = SpisokSM.objects.all()
-    n = 3  # Кол-во участников
     step_time = 1  # Шаг в секундах
-    n_min = 1  # кол-во минут в течение которых ставятся лайки
+    n_min = 30  # кол-во минут в течение которых ставятся лайки
     seconds = 60  # кол-во секунд в 1 минуте
     a = time()  # кол-во секунда с 00:00 01.01.1970  до начала лайктайма
     delta_a = n_min * seconds
@@ -292,49 +345,15 @@ def authorization(request):
                 # Цикл, который простовляет лайки, если их нет
                 try:
                     for i in range(len(results['items'])):
-                        if not vk_api_1.likes.isLiked(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])['liked']:
+                        if not vk_api_1.likes.isLiked(type="post", owner_id=groups_owner_id,
+                                                      item_id=results['items'][i]['id'])['liked']:
                             vk_api_1.likes.add(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])
                             sleep(2)
                 except:
-                    pass
+                    err1 = "IndexError"
                 k += 1
         except IndexError:
-            pass
+            err = "IndexError"
         sleep(step_time)
-    return render(request, 'authorization.html', {'spisok': qwerty, 'q': i})
-
-
-def autolike(request):
-    form = AuthorizationForm(request.POST)
-    if request.method == 'POST':
-        if form.is_valid():
-            login = form.cleaned_data['login']
-            pass1 = form.cleaned_data['password']
-            # Авторизация пользователя по логину и паролю
-            vk_1 = VKAuth(['wall,offline'], '6911940', '5.92', email=login, pswd=pass1)
-            vk_1.auth()
-            # Получение токена и id пользователя
-            token = vk_1.get_token()
-            us_id = vk_1.get_user_id()
-            str_sm = SpisokSM.objects.all()
-            # Если БД не пустая, то проверка токена на наличие его в БД, если нет записать, если есть удалить и записать
-            if str_sm:
-                for i in str_sm:
-                    if i.user_id != us_id:
-                        spisok = SpisokSM()
-                        spisok.user_id = us_id
-                        spisok.access_token = token
-                        spisok.save()
-                    else:
-                        i.delete()
-                        spisok = SpisokSM()
-                        spisok.user_id = us_id
-                        spisok.access_token = token
-                        spisok.save()
-            # Если БД пустая, то записать токен
-            else:
-                spisok = SpisokSM()
-                spisok.user_id = us_id
-                spisok.access_token = token
-                spisok.save()
-    return render(request, 'autolike.html', {'form': form, 'sm': str_sm})
+    qwerty1 = SpisokSM.objects.all()
+    return HttpResponseRedirect(request.GET.get('next'))

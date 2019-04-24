@@ -1,7 +1,9 @@
 {% extends "base_generic.html" %}
 {% block content %}
-<p>{{q.access_token}}</p>
-{%for i in spisok%}
-    <p>{{i.access_token}}:{{i.user_id}}</p>
-{% endfor %}
+
+
+
+<form action="" method="get">
+    <input type="button" class="button" value="Название кнопки" onclick="location.href='http://127.0.0.1:8000/catalog/work/?next={% url 'authorization' %}'"/>
+</form>
 {% endblock %}

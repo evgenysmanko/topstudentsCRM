@@ -1,23 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+{% extends "base_generic.html" %}
+{% load staticfiles %}
+{% block title %} <title> Главная </title> {% endblock %}
+{% block static %}<link rel="stylesheet" href="/static/css/styles.css">{% endblock %}
+
+{% block content %}
+
+
+<div class="graficlogo"><img src="{% static 'images/logo1beta.png' %}" alt="Logo"></div>
     <form action="" method="post">
         <table>
         {% csrf_token %}
         {{ form }}
         </table>
-        <input type="submit" value="Submit" />
+        <!--action="'http://{{url_host}}'-->
+        <input type="submit" class="button" value="Название кнопки" onclick="location.href='http://{{url_host}}'" />
     </form>
-</head>
-<body>
-{%if sm%}
-{%for i in sm%}
-<p>{{i.access_token}}:{{i.user_id}}</p>
-{%endfor%}
-{%else%}
-<p>Nononnono</p>
-{%endif%}
-</body>
-</html>
+{% endblock %}
+
