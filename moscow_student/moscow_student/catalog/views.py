@@ -10,6 +10,8 @@ from .forms import AuthorizationForm
 from .models import SpisokSM
 from random import uniform
 
+BUTTON_TURN_ON_OFF = 0
+
 
 class FormParser(HTMLParser):
     def __init__(self):
@@ -268,14 +270,14 @@ class VKAuth(object):
 
 
 def authorization(request):
-    return render(request, 'authorization.html', {})
+    return render(request, 'authorization.html', )
 
 
 def autolike(request):
     form = AuthorizationForm(request.POST)
     data = "/catalog/success/"
     us_id = ''
-    direction_id = [68047328,1]
+    direction_id = [68047328, 1]
     if request.method == 'POST':
         if form.is_valid():
             login = form.cleaned_data['login']
@@ -284,7 +286,7 @@ def autolike(request):
             # Авторизация пользователя по логину и паролю
             vk_1 = VKAuth(['wall,offline'], '6911940', '5.92', email=login, pswd=pass1)
             vk_1.auth()
-           # Получение токена и id пользователя
+            # Получение токена и id пользователя
             token = vk_1.get_token()
             us_id = vk_1.get_user_id()
             str_sm = SpisokSM.objects.all()
@@ -313,7 +315,7 @@ def autolike(request):
                 spisok.user_id = us_id
                 spisok.access_token = token
                 spisok.save()
-    return render(request, 'autolike.html', {'form': form,'url_host' : request.get_host() + data})
+    return render(request, 'autolike.html', {'form': form, 'url_host': request.get_host() + data})
 
 
 def success(request):
@@ -321,39 +323,45 @@ def success(request):
 
 
 def work(request):
-    qwerty = SpisokSM.objects.all()
-    step_time = 1  # Шаг в секундах
-    n_min = 30  # кол-во минут в течение которых ставятся лайки
-    seconds = 60  # кол-во секунд в 1 минуте
-    a = time()  # кол-во секунда с 00:00 01.01.1970  до начала лайктайма
-    delta_a = n_min * seconds
-    # Список лучайных значений от 0 до delta_a в порядке возрастания
-    random_znach = sorted(list([uniform(0, delta_a) for i in range(n)]))
-    # Цикл, в котором в течение n_min минут ставятся лайки
-    k = 0
-    for _ in range(int(delta_a / step_time)):
-        try:
-            # Если разница между текущем временем и временем начала + рандомное кол-во секунд = 0, то поставить лайк
-            if not (int(a + random_znach[k] - time())):
-                N = 15  # Количество постов
-                groups_owner_id = -133029999  # id группы студент москвы -133029999 -34215577
-                i = qwerty[k]
-                session = vk.Session(access_token=i.access_token)
-                vk_api_1 = vk.API(session, v='5.92')
-                # Получаем id N постов
-                results = vk_api_1.wall.get(owner_id=groups_owner_id, count=N)
-                # Цикл, который простовляет лайки, если их нет
-                try:
-                    for i in range(len(results['items'])):
-                        if not vk_api_1.likes.isLiked(type="post", owner_id=groups_owner_id,
-                                                      item_id=results['items'][i]['id'])['liked']:
-                            vk_api_1.likes.add(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])
-                            sleep(2)
-                except:
-                    err1 = "IndexError"
-                k += 1
-        except IndexError:
-            err = "IndexError"
-        sleep(step_time)
-    qwerty1 = SpisokSM.objects.all()
+    minute = 60
+    second = 60
+    hour = 5
+    while True:
+        qwerty = SpisokSM.objects.all()
+        n = SpisokSM.objects.all().count()  # Количество участников
+        step_time = 1  # Шаг в секундах
+        n_min = 30  # кол-во минут в течение которых ставятся лайки
+        seconds = 60  # кол-во секунд в 1 минуте
+        a = time()  # кол-во секунда с 00:00 01.01.1970  до начала лайктайма
+        delta_a = n_min * seconds
+        # Список лучайных значений от 0 до delta_a в порядке возрастания
+        random_znach = sorted(list([uniform(0, delta_a) for i in range(n)]))
+        # Цикл, в котором в течение n_min минут ставятся лайки
+        k = 0
+        for _ in range(int(delta_a / step_time)):
+            try:
+                # Если разница между текущем временем и временем начала + рандомное кол-во секунд = 0, то поставить лайк
+                if not (int(a + random_znach[k] - time())):
+                    N = 15  # Количество постов
+                    groups_owner_id = -133029999  # id группы студент москвы -133029999
+                    i = qwerty[k]
+                    session = vk.Session(access_token=i.access_token)
+                    vk_api_1 = vk.API(session, v='5.92')
+                    # Получаем id N постов
+                    results = vk_api_1.wall.get(owner_id=groups_owner_id, count=N)
+                    # Цикл, который простовляет лайки, если их нет
+                    try:
+                        for i in range(len(results['items'])):
+                            if not vk_api_1.likes.isLiked(type="post", owner_id=groups_owner_id,
+                                                          item_id=results['items'][i]['id'])['liked']:
+                                vk_api_1.likes.add(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])
+                                sleep(2)
+                    except:
+                        err1 = "IndexError"
+                    k += 1
+            except IndexError:
+                err = "IndexError"
+            sleep(step_time)
+        sleep(hour*minute*second)
+        qwerty1 = SpisokSM.objects.all()
     return HttpResponseRedirect(request.GET.get('next'))
