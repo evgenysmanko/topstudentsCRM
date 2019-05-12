@@ -1,9 +1,8 @@
-# coding utf8
 import requests
 import getpass
 from html.parser import HTMLParser
-from time import sleep
-import vk
+import vk_api
+from vk_api.longpoll import VkLongPoll, VkEventType
 
 
 class FormParser(HTMLParser):
@@ -260,35 +259,3 @@ class VKAuth(object):
         self.security_code = None
         self.email = None
         self.pswd = None
-
-
-"""
-permissions, app_id, api_v, email=None, pswd=None, two_factor_auth=False, security_code=None,
-                 auto_access=True
-
-vk_1 = VKAuth(['wall,offline'], '6911940', '5.92', email='89067257791', pswd='vbnz557263')
-vk_1.auth()
-
-token = vk_1.get_token()
-user_id = vk_1.get_user_id()
-
-print(token)
-
-N = 15  # Количество постов
-groups_owner_id = -34215577  # id группы студент москвы -133029999
-session = vk.Session(access_token=token)
-vk_api_1 = vk.API(session, v='5.92')
-# Получаем id N постов
-results = vk_api_1.wall.get(owner_id=groups_owner_id, count=N)
-# Цикл, который простовляет лайки, если их нет
-for i in range(len(results['items'])):
-    if not vk_api_1.likes.isLiked(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])[
-        'liked']:
-        vk_api_1.likes.add(type="post", owner_id=groups_owner_id, item_id=results['items'][i]['id'])
-        sleep(2)
-"""
-
-a = "privet"
-del a
-a = "qwerrty"
-print(a)
